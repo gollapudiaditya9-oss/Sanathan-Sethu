@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #F6F1E8;
+    --ink: #1A1614;
+    --ink-2: #3A3230;
+    --ink-3: #6E625A;
+    --paper: #FBF8F1;
+    --accent: #C8472D;
+    --success: #2F6B45;
+    --solemn: #7A4F3A;
+    --solemn-soft: #D9C7B3;
+    --line: #1A1614;
+  }
+
+  body {
+    @apply bg-bg text-ink font-inter antialiased selection:bg-ink selection:text-paper;
+  }
+}
+
+/* Motion system overrides */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Base styles to prevent scrollbar jumping during page transitions */
+html {
+  overflow-y: scroll;
+}
+
+/* Page Transition: Column Wipe Overlay */
+.column-wipe-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  pointer-events: none;
+}
+
+.column-wipe-cell {
+  flex: 1;
+  background-color: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .column-wipe-overlay {
+    display: none !important;
+  }
+}
