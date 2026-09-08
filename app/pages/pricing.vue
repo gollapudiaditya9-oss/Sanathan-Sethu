@@ -30,7 +30,7 @@ definePageMeta({
         <div class="flex flex-col md:flex-row items-start md:items-center py-8 border-b border-ink/10 gap-6">
           <div class="font-bricolage text-h-42 text-ink opacity-40 w-full md:w-[80px]">01</div>
           <div class="font-bricolage text-h-42 text-ink w-full md:w-[300px]">Booking deposit</div>
-          <div class="font-inter text-h-16 text-ink-3 w-full flex-grow md:max-w-[400px]">
+          <div class="font-inter text-h-16 text-ink-3 w-full flex-grow ">
             A small refundable hold on the date. Reserves the Purohit's time. Returned to you when the rites are complete.
           </div>
           <div class="font-bricolage text-h-42 text-accent w-full md:w-[200px] md:text-right mt-4 md:mt-0">
@@ -42,7 +42,7 @@ definePageMeta({
         <div class="flex flex-col md:flex-row items-start md:items-center py-8 border-b border-ink/10 gap-6">
           <div class="font-bricolage text-h-42 text-ink opacity-40 w-full md:w-[80px]">02</div>
           <div class="font-bricolage text-h-42 text-ink w-full md:w-[300px]">Platform commission</div>
-          <div class="font-inter text-h-16 text-ink-3 w-full flex-grow md:max-w-[400px]">
+          <div class="font-inter text-h-16 text-ink-3 w-full flex-grow ">
             Taken from the ritual fee — the amount you and the Purohit agreed upon. Covers verification, coordination, and platform costs.
           </div>
           <div class="font-bricolage text-h-42 text-accent w-full md:w-[200px] md:text-right mt-4 md:mt-0">
@@ -54,7 +54,7 @@ definePageMeta({
         <div class="flex flex-col md:flex-row items-start md:items-center py-8 border-b border-ink/10 gap-6">
           <div class="font-bricolage text-h-42 text-ink opacity-40 w-full md:w-[80px]">03</div>
           <div class="font-bricolage text-h-42 text-ink w-full md:w-[300px]">Minimum top-up</div>
-          <div class="font-inter text-h-16 text-ink-3 w-full flex-grow md:max-w-[400px]">
+          <div class="font-inter text-h-16 text-ink-3 w-full flex-grow ">
             Applies when a ritual's total fee falls below our floor. Ensures the Purohit travels for a fair amount.
           </div>
           <div class="font-bricolage text-h-42 text-accent w-full md:w-[200px] md:text-right mt-4 md:mt-0">
@@ -67,9 +67,9 @@ definePageMeta({
 
     <!-- Dark Band: What we will not take -->
     <div class="bg-ink py-24 px-6 md:px-14">
-      <div class="max-w-[1200px] mx-auto flex flex-col gap-6">
+      <div class="mx-auto flex flex-col gap-6">
         <span class="font-inter font-semibold text-h-10 text-accent uppercase tracking-[0.14em]">WHAT WE WILL NOT TAKE</span>
-        <h2 class="font-bricolage text-h-68 text-paper max-w-[900px] leading-[0.95] tracking-[-0.03em] whitespace-pre-line">
+        <h2 class="font-bricolage text-h-68 text-paper  leading-[0.95] tracking-[-0.03em] whitespace-pre-line">
           A share of dakshina.
           A cut of samagri costs.
           Referral fees from caterers.

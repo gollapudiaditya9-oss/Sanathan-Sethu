@@ -127,7 +127,7 @@ const createAccount = () => {
 
       <button
         type="submit"
-        class="inline-flex min-h-[52px] items-center justify-center rounded-lg bg-ink px-6 py-3.5 font-inter text-h-16 font-semibold text-paper transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+        class="inline-flex min-h-[52px] items-center justify-center rounded-lg bg-accent px-6 py-3.5 font-inter text-h-16 font-semibold text-paper transition-all hover:-translate-y-0.5 hover:brightness-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
         Create account
       </button>

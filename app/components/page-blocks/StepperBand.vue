@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { resolveComponent } from 'vue'
+import { computed, resolveComponent } from 'vue'
+import { useBookingState } from '~/composables/useBookingState'
 
 const props = defineProps<{
   currentStep: number
 }>()
 
 const NuxtLink = resolveComponent('NuxtLink')
+const { bookingState } = useBookingState()
 
-const steps = [
-  { num: '01', label: 'RITUAL', to: '/book/choose-ritual' },
-  { num: '02', label: 'CONFIGURE', to: '/book/configure' },
-  { num: '03', label: 'FAMILY DETAILS', to: '/book/family-details' },
-  { num: '04', label: 'MATCH PUROHIT', to: '/book/match-purohit' },
-  { num: '05', label: 'CONFIRM', to: '/book/confirm' }
+const allSteps = [
+  { num: '01', label: 'RITUAL', to: '/book/choose-ritual', matchOnly: false },
+  { num: '02', label: 'CONFIGURE', to: '/book/configure', matchOnly: false },
+  { num: '03', label: 'MATCH PUROHIT', to: '/book/match-purohit', matchOnly: true },
+  { num: '04', label: 'FAMILY DETAILS', to: '/book/family-details', matchOnly: false },
+  { num: '05', label: 'CONFIRM', to: '/book/confirm', matchOnly: false }
 ]
+
+const profileBooking = computed(() => bookingState.value.origin === 'profile' && Boolean(bookingState.value.selectedPurohit))
+const steps = computed(() => {
+  const visible = profileBooking.value ? allSteps.filter(step => !step.matchOnly) : allSteps
+  return visible.map((step, index) => ({ ...step, num: String(index + 1).padStart(2, '0') }))
+})
 </script>
 
 <template>

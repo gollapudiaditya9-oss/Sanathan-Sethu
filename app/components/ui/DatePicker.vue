@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { getBookingDateParts } from '~/utils/formatBookingDate'
 
@@ -15,6 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const root = useTemplateRef<HTMLElement>('root')
+const trigger = useTemplateRef<HTMLButtonElement>('trigger')
 const isOpen = shallowRef(false)
 
 const today = new Date()
@@ -127,23 +128,62 @@ const selectDate = (date: Date) => {
   if (isPast(date)) return
   emit('update:modelValue', formatIsoDate(date))
   isOpen.value = false
+  nextTick(() => trigger.value?.focus())
 }
 
-const openCalendar = () => {
+const isRovingDate = (date: Date) => {
+  if (selectedDate.value
+    && selectedDate.value.getFullYear() === visibleMonth.value.getFullYear()
+    && selectedDate.value.getMonth() === visibleMonth.value.getMonth()) return isSelected(date)
+  if (today.getFullYear() === visibleMonth.value.getFullYear() && today.getMonth() === visibleMonth.value.getMonth()) return isToday(date)
+  return date.getDate() === 1
+}
+
+const focusDate = async (date: Date) => {
+  const lastDate = new Date(lastAvailableYear, 11, 31)
+  const target = date < today ? today : date > lastDate ? lastDate : date
+  visibleMonth.value = new Date(target.getFullYear(), target.getMonth(), 1)
+  await nextTick()
+  root.value?.querySelector<HTMLButtonElement>(`[data-date="${formatIsoDate(target)}"]`)?.focus()
+}
+
+const handleDateKeydown = (event: KeyboardEvent, date: Date) => {
+  let target: Date | null = null
+  if (event.key === 'ArrowLeft') target = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1)
+  if (event.key === 'ArrowRight') target = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
+  if (event.key === 'ArrowUp') target = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7)
+  if (event.key === 'ArrowDown') target = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7)
+  if (event.key === 'Home') target = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay())
+  if (event.key === 'End') target = new Date(date.getFullYear(), date.getMonth(), date.getDate() + (6 - date.getDay()))
+  if (event.key === 'PageUp') target = new Date(date.getFullYear(), date.getMonth() - 1, Math.min(date.getDate(), new Date(date.getFullYear(), date.getMonth(), 0).getDate()))
+  if (event.key === 'PageDown') target = new Date(date.getFullYear(), date.getMonth() + 1, Math.min(date.getDate(), new Date(date.getFullYear(), date.getMonth() + 2, 0).getDate()))
+  if (!target) return
+  event.preventDefault()
+  focusDate(target)
+}
+
+const closeCalendar = (returnFocus = false) => {
+  isOpen.value = false
+  if (returnFocus) nextTick(() => trigger.value?.focus())
+}
+
+const openCalendar = async () => {
   const date = selectedDate.value ?? today
   visibleMonth.value = new Date(date.getFullYear(), date.getMonth(), 1)
   isOpen.value = !isOpen.value
+  if (isOpen.value) await focusDate(date)
 }
 </script>
 
 <template>
-  <div ref="root" class="relative flex flex-col gap-2">
+  <div ref="root" class="relative flex w-full max-w-[520px] flex-col gap-2">
     <label
       id="preferred-date-label"
       class="font-inter font-semibold text-h-10 tracking-[0.14em] uppercase text-ink-3"
     >{{ label }}</label>
 
     <button
+      ref="trigger"
       type="button"
       aria-labelledby="preferred-date-label"
       :aria-expanded="isOpen"
@@ -155,7 +195,7 @@ const openCalendar = () => {
         ? 'border-accent focus:border-accent focus:ring-accent'
         : 'border-ink-3 hover:border-ink focus:border-ink focus:ring-ink'"
       @click="openCalendar"
-      @keydown.esc="isOpen = false"
+      @keydown.esc="closeCalendar()"
     >
       <span :class="formattedDateParts ? 'font-medium text-ink' : 'font-normal text-ink-3'">
         <template v-if="formattedDateParts">
@@ -186,7 +226,7 @@ const openCalendar = () => {
         aria-modal="false"
         aria-label="Choose a preferred date"
         class="absolute left-0 top-full z-30 mt-2 w-full max-w-[390px] overflow-hidden rounded-xl border border-ink/20 bg-paper shadow-[0_22px_60px_rgba(26,22,20,0.18)]"
-        @keydown.esc="isOpen = false"
+        @keydown.esc.prevent="closeCalendar(true)"
       >
         <div class="flex items-end justify-between gap-3 border-b border-ink/10 px-4 py-4 sm:px-5">
           <div class="min-w-0">
@@ -261,6 +301,8 @@ const openCalendar = () => {
                 v-if="date"
                 type="button"
                 :disabled="isPast(date)"
+                :data-date="formatIsoDate(date)"
+                :tabindex="isRovingDate(date) ? 0 : -1"
                 :aria-label="new Intl.DateTimeFormat('en-IN', { dateStyle: 'full' }).format(date)"
                 :aria-selected="isSelected(date)"
                 class="relative flex aspect-square w-full items-center justify-center rounded-md font-inter text-[14px] font-medium transition-colors focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -271,6 +313,7 @@ const openCalendar = () => {
                   'cursor-not-allowed text-ink/25': isPast(date)
                 }"
                 @click="selectDate(date)"
+                @keydown="handleDateKeydown($event, date)"
               >
                 {{ date.getDate() }}
                 <span v-if="isSelected(date)" class="absolute bottom-1 h-1 w-1 rounded-full bg-accent" aria-hidden="true" />

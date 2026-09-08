@@ -20,6 +20,12 @@ const signIn = () => {
 const socialSignIn = (provider: string) => {
   statusMessage.value = `${provider} sign in is ready to connect to its authentication provider.`
 }
+
+const requestPasswordReset = () => {
+  statusMessage.value = emailValid.value
+    ? 'Password reset is ready to connect to the authentication email provider.'
+    : 'Enter your email address first, then request a password reset.'
+}
 </script>
 
 <template>
@@ -80,7 +86,7 @@ const socialSignIn = (provider: string) => {
           :error="submitted && !password ? 'Enter your password.' : ''"
         />
         <div class="mt-3 flex justify-end">
-          <button type="button" class="font-inter text-[13px] font-semibold text-ink-3 underline decoration-ink/30 underline-offset-4 hover:text-ink">
+          <button type="button" class="font-inter text-[13px] font-semibold text-ink-3 underline decoration-ink/30 underline-offset-4 hover:text-ink" @click="requestPasswordReset">
             Forgot password?
           </button>
         </div>
@@ -88,7 +94,7 @@ const socialSignIn = (provider: string) => {
 
       <button
         type="submit"
-        class="inline-flex min-h-[52px] items-center justify-center rounded-lg bg-ink px-6 py-3.5 font-inter text-h-16 font-semibold text-paper transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+        class="inline-flex min-h-[52px] items-center justify-center rounded-lg bg-accent px-6 py-3.5 font-inter text-h-16 font-semibold text-paper transition-transform hover:-translate-y-0.5 hover:brightness-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
         Sign in
       </button>

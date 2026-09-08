@@ -22,7 +22,7 @@ const inputType = computed(() => isPassword.value && passwordVisible.value ? 'te
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div class="flex w-full max-w-[520px] flex-col gap-2">
     <label :for="fieldId" class="font-inter text-h-10 font-semibold uppercase tracking-[0.14em] text-ink-3">
       {{ label }}
     </label>

@@ -5,7 +5,47 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   
   app: {
-    pageTransition: { name: 'column-wipe', mode: 'out-in', css: false }
+    head: {
+      htmlAttrs: { lang: 'en' },
+      title: 'SanatanaSetu'
+    }
+  },
+
+  hooks: {
+    'pages:extend'(pages) {
+      const isPrototypeRoute = (file?: string) => {
+        const normalized = file?.replace(/\\/g, '/') ?? ''
+        return /-AG\.vue$/.test(normalized)
+          || /\(1\)\.vue$/.test(normalized)
+          || normalized.includes('/pages/dev/')
+      }
+
+      const removePrototypeRoutes = (routes: typeof pages) => {
+        for (let index = routes.length - 1; index >= 0; index -= 1) {
+          const route = routes[index]
+          if (isPrototypeRoute(route.file)) {
+            routes.splice(index, 1)
+            continue
+          }
+          if (route.children?.length) removePrototypeRoutes(route.children)
+        }
+      }
+
+      removePrototypeRoutes(pages)
+
+      // consultants.vue is a standalone directory page, not a nested layout.
+      // Promote its generated child routes so they render their own page files.
+      for (const parentPath of ['/consultants', '/partners', '/antyeshti']) {
+        const parentPage = pages.find(page => page.path === parentPath)
+        if (!parentPage?.children?.length) continue
+        const childRoutes = parentPage.children.map(child => ({
+          ...child,
+          path: `${parentPath}/${child.path.replace(/^\//, '')}`
+        }))
+        parentPage.children = []
+        pages.push(...childRoutes)
+      }
+    }
   },
 
   modules: [
@@ -13,6 +53,13 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     '@vueuse/nuxt',
   ],
+
+  runtimeConfig: {
+    // Setu AI (the Library chat). Server-only. See .env.example.
+    aiProvider: 'anthropic',
+    aiApiKey: '',
+    aiModel: 'claude-sonnet-5'
+  },
 
   fonts: {
     families: [

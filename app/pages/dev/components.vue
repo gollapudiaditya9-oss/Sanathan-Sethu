@@ -19,7 +19,7 @@ const testError = ref('')
 
 <template>
   <SectionBand padTop="xl" padBottom="xl" class="bg-paper min-h-screen">
-    <div class="flex flex-col gap-16 max-w-[800px] mx-auto">
+    <div class="flex flex-col gap-16  mx-auto">
       <h1 class="font-bricolage text-h-68 text-ink">Design System Dev</h1>
       
       <!-- Typographic Scale -->

@@ -77,7 +77,7 @@ const selectRitual = (ritual: any) => {
     <StepperBand :currentStep="1" />
     
     <div class="flex-grow flex justify-center w-full px-6 md:px-14 py-12 md:py-24">
-      <div class="max-w-[1200px] w-full flex flex-col gap-12">
+      <div class="w-full flex flex-col gap-12">
         
         <div class="flex flex-col gap-4">
           <span class="font-inter font-semibold text-h-10 text-ink-3 uppercase tracking-[0.14em]">STEP 01 · CHOOSE RITUAL</span>

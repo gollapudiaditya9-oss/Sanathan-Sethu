@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ButtonSmall from '~/components/ui/ButtonSmall.vue'
+import type { RouteLocationRaw } from 'vue-router'
 
 defineProps<{
   number: string
@@ -7,7 +8,7 @@ defineProps<{
   description: string
   fee: string
   buttonLabel: string
-  to: string
+  to: RouteLocationRaw
 }>()
 </script>
 
@@ -21,7 +22,7 @@ defineProps<{
         <span class="font-bricolage text-h-16 text-accent">{{ number }} / PHONE OR WRITTEN</span>
       </div>
       <h3 class="font-bricolage font-bold text-h-42 text-paper">{{ title }}</h3>
-      <p class="font-inter text-h-16 text-paper/70 max-w-[300px]">
+      <p class="font-inter text-h-16 text-paper/70 ">
         {{ description }}
       </p>
     </div>

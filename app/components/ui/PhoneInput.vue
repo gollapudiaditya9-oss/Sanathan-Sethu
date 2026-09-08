@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, shallowRef, useId, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, useId, useTemplateRef, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { countryDialCodes } from '~/data/countryDialCodes'
 
@@ -9,6 +9,9 @@ const props = withDefaults(defineProps<{
   error?: string
   defaultCountry?: string
   theme?: 'light' | 'dark'
+  name?: string
+  autocomplete?: string
+  required?: boolean
 }>(), {
   defaultCountry: 'IN',
   theme: 'light'
@@ -21,6 +24,9 @@ const emit = defineEmits<{
 
 const fieldId = `phone-${useId()}`
 const root = useTemplateRef<HTMLElement>('root')
+const countryTrigger = useTemplateRef<HTMLButtonElement>('countryTrigger')
+const countrySearch = useTemplateRef<HTMLInputElement>('countrySearch')
+const countryList = useTemplateRef<HTMLElement>('countryList')
 const isOpen = shallowRef(false)
 const search = shallowRef('')
 const nationalNumber = shallowRef('')
@@ -64,6 +70,40 @@ const selectCountry = (code: string) => {
   isOpen.value = false
   search.value = ''
   emitValue()
+  nextTick(() => countryTrigger.value?.focus())
+}
+
+const setCountryPickerOpen = async (open: boolean, returnFocus = false) => {
+  isOpen.value = open
+  if (!open) search.value = ''
+  await nextTick()
+  if (open) countrySearch.value?.focus()
+  else if (returnFocus) countryTrigger.value?.focus()
+}
+
+const focusCountryOption = (index: number) => {
+  const options = Array.from(countryList.value?.querySelectorAll<HTMLButtonElement>('[data-country-option]') ?? [])
+  if (!options.length) return
+  options[Math.max(0, Math.min(index, options.length - 1))]?.focus()
+}
+
+const handleCountryOptionKeydown = (event: KeyboardEvent, index: number) => {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    setCountryPickerOpen(false, true)
+  } else if (event.key === 'ArrowDown') {
+    event.preventDefault()
+    focusCountryOption(index + 1)
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault()
+    index === 0 ? countrySearch.value?.focus() : focusCountryOption(index - 1)
+  } else if (event.key === 'Home') {
+    event.preventDefault()
+    focusCountryOption(0)
+  } else if (event.key === 'End') {
+    event.preventDefault()
+    focusCountryOption(filteredCountries.value.length - 1)
+  }
 }
 
 const updateNumber = (event: Event) => {
@@ -100,7 +140,7 @@ onClickOutside(root, () => {
 </script>
 
 <template>
-  <div ref="root" class="relative flex flex-col gap-2">
+  <div ref="root" class="relative flex w-full max-w-[520px] flex-col gap-2">
     <label
       :for="fieldId"
       class="font-inter text-h-10 font-semibold uppercase tracking-[0.14em]"
@@ -118,6 +158,7 @@ onClickOutside(root, () => {
           : 'border-ink/30 bg-paper hover:border-ink/60 focus-within:border-ink focus-within:ring-ink'"
     >
       <button
+        ref="countryTrigger"
         type="button"
         :aria-expanded="isOpen"
         aria-haspopup="listbox"
@@ -126,8 +167,8 @@ onClickOutside(root, () => {
         :class="isDark
           ? 'border-paper/15 text-paper hover:bg-paper/10 focus-visible:ring-paper'
           : 'border-ink/15 text-ink hover:bg-bg focus-visible:ring-ink'"
-        @click="isOpen = !isOpen"
-        @keydown.esc="isOpen = false"
+        @click="setCountryPickerOpen(!isOpen)"
+        @keydown.esc="setCountryPickerOpen(false)"
       >
         <span
           class="relative flex h-[18px] w-6 items-center justify-center overflow-hidden rounded-[2px] text-[9px] font-bold leading-none"
@@ -149,8 +190,10 @@ onClickOutside(root, () => {
         :id="fieldId"
         :value="nationalNumber"
         type="tel"
+        :name="name"
+        :required="required"
         inputmode="tel"
-        autocomplete="tel-national"
+        :autocomplete="autocomplete ?? 'tel-national'"
         placeholder="Phone number"
         :aria-invalid="!!error"
         :aria-describedby="error ? `${fieldId}-error` : undefined"
@@ -172,24 +215,28 @@ onClickOutside(root, () => {
       >
         <div class="border-b border-ink/10 p-3">
           <input
+            ref="countrySearch"
             v-model="search"
             type="search"
             autocomplete="off"
             aria-label="Search countries"
             placeholder="Search country or code"
             class="w-full rounded-lg border border-ink/20 bg-bg px-3 py-2.5 font-inter text-[14px] text-ink outline-none placeholder:text-ink-3 focus:border-ink focus:ring-1 focus:ring-ink"
-            @keydown.esc="isOpen = false"
+            @keydown.esc.prevent="setCountryPickerOpen(false, true)"
+            @keydown.down.prevent="focusCountryOption(0)"
           >
         </div>
-        <ul class="max-h-72 overflow-y-auto p-2" role="listbox" aria-label="Countries">
-          <li v-for="country in filteredCountries" :key="country.code">
+        <ul ref="countryList" class="max-h-72 overflow-y-auto p-2" role="listbox" aria-label="Countries">
+          <li v-for="(country, index) in filteredCountries" :key="country.code">
             <button
+              data-country-option
               type="button"
               role="option"
               :aria-selected="country.code === selectedCode"
               class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink"
               :class="country.code === selectedCode ? 'bg-solemn-soft/35' : ''"
               @click="selectCountry(country.code)"
+              @keydown="handleCountryOptionKeydown($event, index)"
             >
               <span class="relative flex h-[18px] w-6 shrink-0 items-center justify-center overflow-hidden rounded-[2px] bg-ink/5 font-inter text-[9px] font-bold leading-none text-ink-3" aria-hidden="true">
                 {{ country.code }}

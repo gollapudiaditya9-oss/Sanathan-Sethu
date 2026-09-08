@@ -6,7 +6,7 @@ import SiteNav from '../components/ui/SiteNav.vue'
   <div class="min-h-screen flex flex-col bg-paper text-ink relative font-inter selection:bg-solemn selection:text-paper">
     <SiteNav />
     
-    <main class="flex-grow w-full flex flex-col relative z-10 items-center justify-center">
+    <main id="main-content" tabindex="-1" class="flex-grow w-full flex flex-col relative z-10 items-center justify-center">
       <slot />
     </main>
     

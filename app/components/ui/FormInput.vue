@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 const props = defineProps<{
   label: string
@@ -9,14 +9,19 @@ const props = defineProps<{
   error?: string
   type?: string
   id?: string
+  name?: string
+  autocomplete?: string
+  required?: boolean
+  disabled?: boolean
 }>()
 const emit = defineEmits<{ 'update:modelValue': [v: string] }>()
 
-const inputId = computed(() => props.id ?? `field-${Math.random().toString(36).slice(2, 9)}`)
+const generatedId = `field-${useId()}`
+const inputId = computed(() => props.id ?? generatedId)
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div class="flex w-full max-w-[520px] flex-col gap-2">
     <label
       :for="inputId"
       class="font-inter font-semibold text-h-10 tracking-[0.14em] uppercase text-ink-3"
@@ -24,6 +29,10 @@ const inputId = computed(() => props.id ?? `field-${Math.random().toString(36).s
     <input
       :id="inputId"
       :type="type ?? 'text'"
+      :name="name"
+      :autocomplete="autocomplete"
+      :required="required"
+      :disabled="disabled"
       :value="modelValue"
       :placeholder="placeholder"
       :aria-invalid="!!error"

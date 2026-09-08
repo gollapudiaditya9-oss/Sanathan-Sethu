@@ -18,6 +18,11 @@ logs
 .fleet
 .idea
 
+# Test/audit scratch output
+test-results
+playwright-report
+.audit
+
 # Local env files
 .env
 .env.*

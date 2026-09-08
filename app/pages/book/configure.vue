@@ -9,6 +9,8 @@ import DatePicker from '~/components/ui/DatePicker.vue'
 import { useForm, useField } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
+import { onBeforeRouteLeave } from 'vue-router'
+import { computed } from 'vue'
 
 definePageMeta({
   layout: 'booking'
@@ -40,7 +42,7 @@ const step2Schema = toTypedSchema(
   })
 )
 
-const { handleSubmit, errors } = useForm({
+const { handleSubmit, errors, values } = useForm({
   validationSchema: step2Schema,
   initialValues: {
     date: bookingState.value.config?.date || '',
@@ -56,6 +58,9 @@ const { value: timeWindow } = useField<string>('timeWindow')
 const { value: location } = useField<string>('location')
 const { value: considerations } = useField<string>('considerations')
 const { value: customRitualName } = useField<string>('customRitualName')
+const continueLabel = computed(() => bookingState.value.origin === 'profile' && bookingState.value.selectedPurohit
+  ? 'Continue to family details'
+  : 'Find matching Purohits')
 
 const onSubmit = handleSubmit((values) => {
   setConfig({
@@ -65,11 +70,27 @@ const onSubmit = handleSubmit((values) => {
     considerations: values.considerations || '',
     customRitualName: values.customRitualName || ''
   })
-  // Advance to step 3
-  router.push('/book/family-details')
+  router.push(bookingState.value.origin === 'profile' && bookingState.value.selectedPurohit
+    ? '/book/family-details'
+    : '/book/match-purohit')
+})
+
+const saveDraft = () => {
+  setConfig({
+    date: values.date || '',
+    timeWindow: values.timeWindow || '',
+    location: values.location || '',
+    considerations: values.considerations || '',
+    customRitualName: values.customRitualName || ''
+  })
+}
+
+onBeforeRouteLeave(() => {
+  saveDraft()
 })
 
 const goBack = () => {
+  saveDraft()
   router.push('/book/choose-ritual')
 }
 </script>
@@ -79,7 +100,7 @@ const goBack = () => {
     <StepperBand :currentStep="2" />
     
     <div class="flex-grow flex justify-center w-full px-6 md:px-14 py-12 md:py-24">
-      <div class="max-w-[1200px] w-full grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-24">
+      <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-24">
         
         <!-- Left Recap -->
         <div class="md:col-span-5 lg:col-span-4 flex flex-col gap-6">
@@ -106,7 +127,7 @@ const goBack = () => {
             </h1>
           </div>
 
-          <form @submit="onSubmit" class="flex flex-col gap-8 max-w-[600px]">
+          <form @submit="onSubmit" class="flex flex-col gap-8 ">
             <!-- Custom Ritual Section -->
             <div v-if="bookingState.ritual?.id === 'others'" class="flex flex-col gap-6 p-6 bg-accent/5 border border-accent/20 rounded-xl mb-4">
               <div class="flex flex-col gap-1">
@@ -153,7 +174,7 @@ const goBack = () => {
             <!-- Continue Row -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 mt-4 border-t border-ink/10">
               <ButtonSmall variant="outline" label="Back" type="button" @click="goBack" />
-              <ButtonLarge label="Continue to family details" type="submit" />
+              <ButtonLarge :label="continueLabel" type="submit" />
             </div>
           </form>
 

@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@ishubhamx/panchangam-js": "^3.0.0",
     "@vee-validate/zod": "^4.15.1",
     "esbuild": "^0.28.0",
     "gsap": "^3.15.0",

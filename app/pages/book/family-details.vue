@@ -11,6 +11,7 @@ import { getBookingDateParts } from '~/utils/formatBookingDate'
 import { useForm, useField } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
+import { onBeforeRouteLeave } from 'vue-router'
 
 definePageMeta({
   layout: 'booking'
@@ -33,7 +34,7 @@ const familyDetailsSchema = toTypedSchema(z.object({
   familyNotes: z.string().optional()
 }))
 
-const { handleSubmit, errors } = useForm({
+const { handleSubmit, errors, values } = useForm({
   validationSchema: familyDetailsSchema,
   initialValues: {
     name: bookingState.value.familyDetails?.name ?? '',
@@ -64,8 +65,29 @@ if (!bookingState.value.config?.date) {
 }
 
 const goBack = () => {
-  router.push('/book/configure')
+  saveDraft()
+  router.push(bookingState.value.origin === 'profile' && bookingState.value.selectedPurohit
+    ? '/book/configure'
+    : '/book/match-purohit')
 }
+
+const saveDraft = () => {
+  setFamilyDetails({
+    name: values.name || '',
+    phone: values.phone || '',
+    familyName: values.familyName || '',
+    gothram: values.gothram || '',
+    wifeName: values.wifeName || '',
+    childrenNames: values.childrenNames || '',
+    fatherName: values.fatherName || '',
+    motherName: values.motherName || '',
+    familyNotes: values.familyNotes || ''
+  })
+}
+
+onBeforeRouteLeave(() => {
+  saveDraft()
+})
 
 const onContinue = handleSubmit((values) => {
   setFamilyDetails({
@@ -79,16 +101,16 @@ const onContinue = handleSubmit((values) => {
     motherName: values.motherName ?? '',
     familyNotes: values.familyNotes ?? ''
   })
-  router.push('/book/match-purohit')
+  router.push('/book/confirm')
 })
 </script>
 
 <template>
   <div class="flex flex-col h-full">
-    <StepperBand :currentStep="3" />
+    <StepperBand :currentStep="bookingState.origin === 'profile' && bookingState.selectedPurohit ? 3 : 4" />
     
     <div class="flex-grow flex justify-center w-full px-6 md:px-14 py-12 md:py-24">
-      <div class="max-w-[1200px] w-full grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-24">
+      <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-24">
         
         <!-- Left Recap -->
         <div class="md:col-span-5 lg:col-span-4 flex flex-col gap-6">
@@ -115,16 +137,16 @@ const onContinue = handleSubmit((values) => {
         <!-- Right Active Form -->
         <div class="md:col-span-7 lg:col-span-8 flex flex-col">
           <div class="flex flex-col gap-4 mb-12">
-            <span class="font-inter font-semibold text-h-10 text-ink-3 uppercase tracking-[0.14em]">STEP 03 · FAMILY DETAILS</span>
+            <span class="font-inter font-semibold text-h-10 text-ink-3 uppercase tracking-[0.14em]">{{ bookingState.origin === 'profile' && bookingState.selectedPurohit ? 'STEP 03' : 'STEP 04' }} · FAMILY DETAILS</span>
             <h1 class="font-bricolage text-h-68 text-ink tracking-[-0.03em] leading-[0.95]">
               Tell us about your family.
             </h1>
-            <p class="max-w-[560px] font-inter text-h-16 text-ink-3">
+            <p class="font-inter text-h-16 text-ink-3">
               These details help the Purohit prepare for your family and the people taking part.
             </p>
           </div>
 
-          <form @submit="onContinue" class="flex max-w-[600px] flex-col gap-10">
+          <form @submit="onContinue" class="flex  flex-col gap-10">
             <fieldset class="flex flex-col gap-6">
               <legend class="mb-6 flex w-full items-center gap-4">
                 <span class="font-inter text-h-10 font-semibold uppercase tracking-[0.14em] text-accent">Booking contact</span>
@@ -190,7 +212,7 @@ const onContinue = handleSubmit((values) => {
             <!-- Continue Row -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 mt-4 border-t border-ink/10">
               <ButtonSmall variant="outline" label="Back" type="button" @click="goBack" />
-              <ButtonLarge label="Find matching Purohits" type="submit" />
+              <ButtonLarge label="Continue to confirmation" type="submit" />
             </div>
           </form>
 

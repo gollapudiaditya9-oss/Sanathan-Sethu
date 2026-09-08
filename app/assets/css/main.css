@@ -9,7 +9,7 @@
     --ink-2: #3A3230;
     --ink-3: #6E625A;
     --paper: #FBF8F1;
-    --accent: #C8472D;
+    --accent: #BF4028;
     --success: #2F6B45;
     --solemn: #7A4F3A;
     --solemn-soft: #D9C7B3;
@@ -19,6 +19,33 @@
   body {
     @apply bg-bg text-ink font-inter antialiased selection:bg-ink selection:text-paper;
   }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  :where(input, select, textarea) {
+    max-width: 32.5rem;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10000;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  transform: translateY(-160%);
+  transition: transform 150ms ease-out;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 /* Motion system overrides */

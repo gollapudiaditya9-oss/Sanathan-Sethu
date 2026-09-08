@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { useColumnWipe } from '~/composables/useColumnWipe'
 
 const route = useRoute()
-const columnWipe = useColumnWipe()
 </script>
 
 <template>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <NuxtRouteAnnouncer />
   <NuxtLayout>
-    <NuxtPage :transition="columnWipe" :page-key="route.fullPath" />
+    <NuxtPage :page-key="route.fullPath" />
   </NuxtLayout>
 </template>

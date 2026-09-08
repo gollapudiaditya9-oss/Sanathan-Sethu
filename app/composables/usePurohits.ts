@@ -1,12 +1,7 @@
 import purohitsData from '~/data/purohits.json'
 
 export const usePurohits = () => {
-  const sanitizePurohit = (p: any) => {
-    return {
-      ...p,
-      patasala: p.patasala === '[verify-patasala-name]' ? 'Tirumala Tirupati Devasthanams' : p.patasala
-    }
-  }
+  const sanitizePurohit = (p: any) => ({ ...p })
 
   const getPurohits = () => {
     return purohitsData.map(sanitizePurohit)
